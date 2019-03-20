@@ -15,6 +15,7 @@ Baremetal := n
 #--------------------------------------------------------------------
 ifeq ($(Baremetal), y)
 TARGET := start.elf
+MCPU := cortex-m4
 else
 TARGET := demo
 CCFLAGS := -O2
@@ -25,8 +26,8 @@ endif
 #--------------------------------------------------------------------
 ifeq ($(Baremetal), y)
 export CROSS_COMPILE ?= arm-none-eabi-
-export DEVICE  := -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 \
-	-mfloat-abi=hard -ffunction-sections -fdata-sections
+
+DEVICE := -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections -mcpu=$(MCPU)
 
 export CCFLAGS := -O2
 CCFLAGS += $(DEVICE)

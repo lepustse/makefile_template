@@ -49,7 +49,9 @@ makefile_template 遵循 LGPLV2.1 许可，详见`LICENSE`文件。
 - `build.mk`
 - `makefile`
 
-### `build.mk`如何添加文件、目录？
+换句话说，此 makefile 模板想应用于新工程，只需要带上`Makefile`和`Makefile.build`即可，`build.mk`要重新写。
+
+### `build.mk`怎么写(如何添加文件、目录)？
 `build.mk` 的作用是添加**要编译**的文件，那么如果目录存在嵌套呢？
 
 - 如何添加`main.c`？（`.s`, `.S`也是一样的做法）
