@@ -1,0 +1,76 @@
+#--------------------------------------------------------------------
+# src
+#--------------------------------------------------------------------
+src := $(obj)
+
+# O是out
+ifeq ($(O),)
+objdir := $(src)
+rm-dir :=
+else
+# 这是设置.o的输出路径
+# 把src的文件名的前面的当前目录名字替换成输出目录
+objdir := $(src:$(CURDIR)%=$(O)%)
+rm-dir := $(objdir)
+endif
+
+VPATH := $(src)
+
+#--------------------------------------------------------------------
+# include
+#--------------------------------------------------------------------
+include $(src)/build.mk
+
+objy := $(filter-out %/,$(obj-y))
+objy := $(objy:%=$(objdir)/%)
+
+subdiry := $(filter %/,$(obj-y))
+sub_deps := $(subdiry:%/=$(objdir)/%/built-in.o)
+subdiry := $(subdiry:%/=$(src)/%)
+
+#--------------------------------------------------------------------
+# xxx
+#--------------------------------------------------------------------
+# foreach: 循环
+# make (-s) -f xx.mk xx/xx clean
+sub_clean = $(foreach f,$(subdiry),	\
+	make $(MAKE_SILENT) -f Makefile.build obj=$f clean;)
+
+PHONY := __build
+PHONY += clean
+
+__build: $(objdir)/built-in.o
+
+#--------------------------------------------------------------------
+# .o packing
+#--------------------------------------------------------------------
+$(objdir)/built-in.o: $(objy) $(sub_deps)
+	$(Q)echo "GEN $@"
+	$(Q)$(LD) -r -o $@ $(objy) $(sub_deps)
+
+$(objdir)/%.o: $(src)/%.c
+	$(Q)echo "CC $@"
+	$(Q)if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
+	$(Q)$(CC) $(CCFLAGS) -c $< -o $@
+
+$(objdir)/%.o: $(src)/%.S
+	$(Q)echo "CC $@"
+	$(Q)if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
+	$(Q)$(CC) $(ASFLAGS) -c $< -o $@
+
+$(objdir)/%.o: $(src)/%.s
+	$(Q)echo "CC $@"
+	$(Q)if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
+	$(Q)$(CC) $(ASFLAGS) -c $< -o $@
+
+$(sort $(sub_deps)): $(subdiry);
+
+$(subdiry):
+	$(Q)make $(MAKE_SILENT) -f Makefile.build obj=$@
+
+clean:
+	$(Q)set -e
+	$(Q)(cat /dev/null; $(sub_clean))
+	$(Q)rm -rf $(objdir)/built-in.o $(objy) $(rm-dir)
+
+.PHONY: $(PHONY) $(subdiry)
