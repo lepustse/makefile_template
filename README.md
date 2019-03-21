@@ -1,5 +1,5 @@
 # makefile_template
-便于移植的makefile模板
+便于移植的 makefile 模板
 
 ## 介绍
 这是 makefile 模板，支持`gcc`和`arm-none-eabi-gcc`两种编译器，只需要修改**少量**文件就能移植。
